@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {presenter, sendMessage} from './server';
+import {presenter, sendMessage, pause} from './helpers/server';
 
 function Example() { 
   // register in conference
@@ -30,6 +30,7 @@ function Example() {
     <button onClick={presenter}>presenter</button>
     <button onClick={() => sendMessage(object)}>dlya huyni</button>
     <button onClick={() => sendMessage(object2)}>create room</button>
+    <button onClick={pause}>pause video</button>
     </>
   );
 }

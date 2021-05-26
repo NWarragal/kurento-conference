@@ -81,7 +81,6 @@ wss.on('connection', function (ws) {
 							message: error
 						}));
 					}
-					// updateIceCandidates(sessionId, nextTarget);
 					// sending users ids list for subscribing
 					let usersIdList = getUsersList(userList.usersById[sessionId].room, sessionId);
 					ws.send(JSON.stringify({
@@ -108,7 +107,6 @@ wss.on('connection', function (ws) {
 							message: error
 						}));
 					}
-					// console.log(userList);
 					ws.send(JSON.stringify({
 						id: 'viewerResponse',
 						response: 'accepted',
