@@ -18,6 +18,7 @@ const StyledInput = ({
   letter_spacing,
   color_placeholder,
   opacity_placeholder,
+  disabled
 }) => {
   return (
     <Input
@@ -39,6 +40,7 @@ const StyledInput = ({
       letter_spacing={letter_spacing}
       color_placeholder={color_placeholder}
       opacity_placeholder={opacity_placeholder}
+      disabled={disabled}
     />
   );
 };
