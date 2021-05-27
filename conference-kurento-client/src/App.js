@@ -1,5 +1,6 @@
 import React from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 import Example from './Example';
 import Footer from './components/footernew/footer';
@@ -13,20 +14,21 @@ import {
 } from './styles';
 
 function App() {
+  let message = useSelector(state => state.error.errorMessage);
   
   return (
     <>
-    <Example />
-    {/* <AppWrapper>
+    {/* <Example /> */}
+    <AppWrapper>
       <Redirect push to="/home" />
       
       <Switch>
         <Route path='/home' component={MainFormBlock} />
         <Route path='/conf' component={ConferencePageBlock} />
-        <Route path='/' component={_ => <ErrorPageBlock message={'something is wrong, reload please'} />} />
+        <Route path='/' component={_ => <ErrorPageBlock message={message} />} />
       </Switch>
       <Footer />
-    </AppWrapper> */}
+    </AppWrapper>
     </>
   );
 }

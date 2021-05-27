@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useHistory } from "react-router-dom";
 import { setHome } from '../../store/modules/footerStatus/footerActions';
 import { useDispatch } from 'react-redux';
+import { setReloadTOError } from '../../store/modules/errorPage/errorActions'
+import { setError } from '../../store/modules/footerStatus/footerActions';
 
 import {
     Wrapper,
@@ -25,6 +27,11 @@ function IsErrorPageBlock({ message }) {
         let path = log;
         history.push(path);
     }
+
+    useEffect(() => {
+        dispatch(setReloadTOError(false));
+        dispatch(setError());
+    }, [])
 
     return (
         <Wrapper>
@@ -58,7 +65,6 @@ function IsErrorPageBlock({ message }) {
                         top={"0"}
                         width={260}
                         onClick={_ => {
-                            dispatch(setHome());
                             routeChange("home");
                         }}
                     ></StyledButton>

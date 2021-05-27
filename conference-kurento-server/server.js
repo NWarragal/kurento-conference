@@ -137,9 +137,9 @@ wss.on('connection', function (ws) {
 			case 'createRoom':
 				if (!checkIsAvailible(message.room)) {
 					activeRooms.push(message.room);
-					if (message.name) {
+					if (message.settings.nickname) {
 						if (!userList.getById(sessionId))
-							userList.register(new UserSession(sessionId, message.name, ws, message.room));
+							userList.register(new UserSession(sessionId, message.settings.nickname, ws, message.room));
 						userList.usersById[sessionId].admin = true;
 						ws.send(JSON.stringify({
 							id: 'writeId',

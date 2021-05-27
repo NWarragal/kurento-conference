@@ -1,4 +1,7 @@
 import kurentoUtils from 'kurento-utils';
+import { setConf, setError } from '../store/modules/footerStatus/footerActions';
+import * as ErrorPage from '../store/modules/errorPage/errorActions';
+import store from '../store/store';
 
 var ws = new WebSocket('wss://localhost:8443/server');
 var webRtcPeer;
@@ -15,6 +18,9 @@ var startedViewers = false;
 let videoconnection = true;
 let localVideoStream;
 let localAudioStream;
+let isError = false;
+let isConnected = false;
+let isRegistered = false;
 
 window.onload = function () {
 	video1 = document.getElementById('video1');
@@ -23,6 +29,14 @@ window.onload = function () {
 
 window.onbeforeunload = function () {
 	ws.close();
+}
+
+ws.onopen = function (err) {
+	isConnected = true;
+}
+
+ws.onerror = function (err) {
+	isError = true;
 }
 
 ws.onmessage = function (message) {
@@ -76,6 +90,8 @@ ws.onmessage = function (message) {
 			break;
 		case 'writeId':
 			userId = parsedMessage.userId;
+			isRegistered = true;
+			console.log('success');
 			break;
 		case 'errorRegister':
 			console.log(parsedMessage.status);
@@ -117,7 +133,7 @@ function viewerResponse(message) {
 export function presenter() {
 	if (!webRtcPeer) {
 		setLocalStreams();
-		
+
 		let options = {
 			videoStream: localVideoStream,
 			onicecandidate: onIceCandidate
@@ -218,7 +234,7 @@ export function sendMessage(message) {
 	ws.send(jsonMessage);
 }
 
-function setLocalStreams(){
+function setLocalStreams() {
 	navigator.mediaDevices.getUserMedia({
 		video: true
 	})
@@ -231,10 +247,11 @@ function setLocalStreams(){
 		});
 }
 
-export function pause() {
+export function pause(stream) {
 	// webRtcPeer.showLocalVideo(false);
 	// videoconnection = !videoconnection;
-	if(videoconnection) {
+	// padumath
+	if (videoconnection) {
 		localVideoStream.getTracks().forEach((v) => {
 			v.enabled = false;
 		})
@@ -247,4 +264,32 @@ export function pause() {
 	// 	})
 	// 	videoconnection = true;
 	// }
+}
+
+export function register(room, settings) {
+	if (isError || !isConnected) {
+		store.dispatch(ErrorPage.setError('Could not connect to server!'));
+		store.dispatch(ErrorPage.setReloadTOError(true));
+	} else {
+		if (!isRegistered)
+			sendMessage({
+				id: "register",
+				room: room,
+				settings
+			});
+	}
+}
+
+export function createRoom(room, settings) {
+	if (isError || !isConnected) {
+		store.dispatch(ErrorPage.setError('Could not connect to server!'));
+		store.dispatch(ErrorPage.setReloadTOError(true));
+	} else {
+		if (!isRegistered)
+			sendMessage({
+				id: "createRoom",
+				room: room,
+				settings
+			});
+	}
 }

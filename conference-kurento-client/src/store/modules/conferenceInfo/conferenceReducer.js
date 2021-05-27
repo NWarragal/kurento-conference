@@ -13,6 +13,7 @@ const initialState = {
     videoBlocks: [
         {
             nickname: 'You',
+            userId: null,
             videoTag: 'videoUser',
             videoActive: false,
             audioActive: false,

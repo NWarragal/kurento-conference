@@ -68,7 +68,6 @@ function BottomFooterBlock({ admin }) {
       {settingsModalOpened && <ModalWindow
         mode={"settings"}
         onClose={settingsButtonClicked}
-        message={"hello world!"}
       ></ModalWindow>}
       {isActiveChat && <ModalWindow
         mode={"chat"}
