@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import { useHistory } from "react-router-dom";
+import { useSelector } from 'react-redux';
 
 import {
     Wrapper,
@@ -9,9 +10,10 @@ import {
 import Loader from '../loader/loader';
 import SimpleVideoBlock from './videoBlock/block';
 
-const ConferencePageBlock = ({}) => {
-    // inverse it
-    const [checkIsReady, setActiveText] = useState(true);
+const ConferencePageBlock = ({ }) => {
+    let videos = useSelector(state => state.conferenceInfo.videoBlocks);
+    let admin = useSelector(state => state.conferenceInfo.admin);
+    let isLoading = useSelector(state => state.conferenceInfo.isLoading);
 
     // move to footer ???
     const history = useHistory();
@@ -23,14 +25,20 @@ const ConferencePageBlock = ({}) => {
 
     return (
         <Wrapper>
-            {!checkIsReady && <Loader />}
+            {isLoading && <Loader />}
             <CenterBlock>
-                <SimpleVideoBlock name={`You`} admin active videoEnabled you></SimpleVideoBlock>
-                <SimpleVideoBlock name={`Ivan san`} admin></SimpleVideoBlock>
-                <SimpleVideoBlock></SimpleVideoBlock>
-                <SimpleVideoBlock></SimpleVideoBlock>
-                <SimpleVideoBlock></SimpleVideoBlock>
-                <SimpleVideoBlock></SimpleVideoBlock>
+                {videos.map(v => 
+                    <SimpleVideoBlock
+                        id={v.videoTag}
+                        name={v.nickname}
+                        admin={admin}
+                        //active
+                        videoEnabled={v.videoActive}
+                        soundEnabled={v.audioActive}
+                        textEnabled={v.chatActive}
+                        you={v.isUser}
+                    ></SimpleVideoBlock>
+                )}
             </CenterBlock>
         </Wrapper>
     );

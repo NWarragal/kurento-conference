@@ -1,12 +1,14 @@
 import { combineReducers } from "redux";
 import { FooterReducer } from "./modules/footerStatus/footerReducer";
-
+import { ConferenceReducer } from './modules/conferenceInfo/conferenceReducer';
+import { ErrorReducer } from './modules/errorPage/errorReducer';
 
 
 const rootReducer = combineReducers({
   footer: FooterReducer,
   // messages: MessagesReducer,
-  // conferenceInfo: ConferenceInfoReducer
+  error: ErrorReducer,
+  conferenceInfo: ConferenceReducer
 });
 
 export default rootReducer;

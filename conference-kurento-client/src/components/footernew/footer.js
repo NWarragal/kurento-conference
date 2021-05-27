@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useHistory } from "react-router-dom";
+import { useSelector } from 'react-redux';
 
 import {
   Wrapper,
@@ -22,7 +24,6 @@ import SettingsImage from '../../assets/settings.svg';
 import ModalWindow from '../modalWindow/modalWindow';
 import Typography from '../Typography/typography';
 import PointButton from '../pointButton/pointButton';
-import { useSelector } from 'react-redux';
 
 function BottomFooterBlock({ admin }) {
   let chat = useSelector(state => state.footer.chat);
@@ -32,6 +33,7 @@ function BottomFooterBlock({ admin }) {
   let text = useSelector(state => state.footer.text);
   let quit = useSelector(state => state.footer.quit);
   let settings = useSelector(state => state.footer.settings);
+  let conferenceId = useSelector(state => state.conferenceInfo.conferenceId);
 
   const [isActiveAudio, setActiveAudio] = useState(false);
   const [isActiveVideo, setActiveVideo] = useState(false);
@@ -53,6 +55,13 @@ function BottomFooterBlock({ admin }) {
     setActiveChat(value);
   };
   const getActivityParams = 0;
+
+  const history = useHistory();
+
+    const routeChange = (log) => {
+        let path = log;
+        history.push(path);
+    }
 
   return (
     <Wrapper>
@@ -103,7 +112,7 @@ function BottomFooterBlock({ admin }) {
               />
               <Typography
                 line_height={"42px"}
-                text={`_number`}
+                text={conferenceId}
                 preset={"body_18px_400"}
                 color={"#fff"}
               />
