@@ -170,6 +170,9 @@ wss.on('connection', function (ws) {
 				onIceCandidate(sessionId, message.candidate, nextTarget);
 				break;
 
+			case 'sendMessage':
+				resendMessageToAllActive(userList.usersById[sessionId].room, message.value, message.time);
+				break;
 			default:
 				ws.send(JSON.stringify({
 					id: 'error',
@@ -377,10 +380,10 @@ function stop(sessionId) {
 		if (userList.usersById[sessionId] && userList.usersById[sessionId].admin) {
 			notifyAllUsersEndConference(sessionId, userList.usersById[sessionId].room);
 			let object = activeRooms;
-            let index;
-            for (let i = 0; i < object.length; i++) {
-                if (object[i].userId === userList.usersById[sessionId].room) index = i;
-            }
+			let index;
+			for (let i = 0; i < object.length; i++) {
+				if (object[i].userId === userList.usersById[sessionId].room) index = i;
+			}
 			activeRooms.splice(index, 1);
 		}
 		userList.removeById(sessionId);
@@ -420,6 +423,19 @@ function onIceCandidate(sessionId, _candidate, targetId) {
 		}
 		candidatesQueue[sessionId].push(candidate);
 	}
+}
+
+function resendMessageToAllActive(room, value, time) {
+	let list = userList.getUsersByRoom(room);
+	list.forEach(v => {
+		if (v.settings.chatActive)
+			v.sendMessage({
+				id: 'receiveMessage',
+				value,
+				time,
+				nickname: v.name
+			})
+	});
 }
 
 function notifyAllUsers(sessionId, room) {

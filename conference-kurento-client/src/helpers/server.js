@@ -2,6 +2,7 @@ import kurentoUtils from 'kurento-utils';
 import * as Footer from '../store/modules/footerStatus/footerActions';
 import * as ErrorPage from '../store/modules/errorPage/errorActions';
 import * as Conference from '../store/modules/conferenceInfo/conferenceActions';
+import * as Messages from '../store/modules/messagesInfo/messagesActions';
 import store from '../store/store';
 
 var ws = new WebSocket('wss://localhost:8443/server');
@@ -11,9 +12,7 @@ var VideoMs = {};
 var activeUsesList = [];
 var activeUsersIndex = 0;
 var actualSubscriber;
-var video1;
 var onError;
-var userId;
 var startedViewers = false;
 let videoconnection = true;
 let localVideoStream;
@@ -22,20 +21,16 @@ let isError = false;
 let isConnected = false;
 let isRegistered = false;
 
-window.onload = function () {
-	video1 = document.getElementById('video1');
-}
-
 
 window.onbeforeunload = function () {
 	ws.close();
 }
 
-ws.onopen = function (err) {
+ws.onopen = function () {
 	isConnected = true;
 }
 
-ws.onerror = function (err) {
+ws.onerror = function () {
 	isError = true;
 }
 
@@ -104,7 +99,6 @@ ws.onmessage = function (message) {
 			}
 			break;
 		case 'writeId':
-			userId = parsedMessage.userId;
 			isRegistered = true;
 			store.dispatch(ErrorPage.setReloadTOConf(true));
 			store.dispatch(Conference.setId(parsedMessage.room));
@@ -127,6 +121,15 @@ ws.onmessage = function (message) {
 			store.dispatch(ErrorPage.setError('Could not register in conference! Maybe this id is invalid'));
 			store.dispatch(ErrorPage.setReloadTOError(true));
 			isRegistered = false;
+			break;
+		case 'receiveMessage':
+			let newMessage = {
+				value: parsedMessage.value,
+				nickname: parsedMessage.nickname,
+				time: parsedMessage.time
+			}
+			store.dispatch(Messages.addMessage(newMessage));
+			store.dispatch(Messages.setUnread(true));
 			break;
 		default:
 			console.error('Unrecognized message', parsedMessage);
@@ -180,10 +183,6 @@ export function presenter() {
 			videoStream: localVideoStream,
 			onicecandidate: onIceCandidate
 		}
-		// let options = {
-		// 	localVideo: video1,
-		// 	onicecandidate: onIceCandidate
-		// }
 
 		webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerSendonly(options, function (error) {
 			if (error) return onError(error);
@@ -368,4 +367,13 @@ export function createRoom(room, settings) {
 export function disconnect() {
 	store.dispatch(Conference.clearVideoBlocks());
 	stop();
+}
+
+export function sendMessageModal(message) {
+	let date = new Date();
+	sendMessage({
+		id: 'sendMessage',
+		value: message,
+		time: `${date.getHours()}:${date.getMinutes()}`
+	})
 }

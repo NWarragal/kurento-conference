@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import {
   Wrapper,
@@ -25,6 +25,7 @@ import SettingsImage from '../../assets/settings.svg';
 import ModalWindow from '../modalWindow/modalWindow';
 import Typography from '../Typography/typography';
 import PointButton from '../pointButton/pointButton';
+import * as Messages from '../../store/modules/messagesInfo/messagesActions';
 
 function BottomFooterBlock() {
   let chat = useSelector(state => state.footer.chat);
@@ -36,6 +37,7 @@ function BottomFooterBlock() {
   let settings = useSelector(state => state.footer.settings);
   let conferenceId = useSelector(state => state.conferenceInfo.conferenceId);
   let admin = useSelector(state => state.conferenceInfo.admin);
+  let unread = useSelector(state => state.messages.unread);
 
   const [isActiveAudio, setActiveAudio] = useState(false);
   const [isActiveVideo, setActiveVideo] = useState(false);
@@ -44,13 +46,19 @@ function BottomFooterBlock() {
   const [notifyModalOpened, setNotifyModalOpened] = useState(false);
   const [isActiveChat, setActiveChat] = useState(false);
 
+  let dispatch = useDispatch();
+
   const videoButtonClicked = 0;
   const audioButtonClicked = 0;
   const textButtonClicked = 0;
   const settingsButtonClicked = (value) => {
     setsettingsModalOpened(value);
   };
+
   const chatButtonClicked = (value) => {
+    if(isActiveChat) {
+      dispatch(Messages.setUnread(false));
+    }
     setActiveChat(value);
   };
 
@@ -97,7 +105,7 @@ function BottomFooterBlock() {
               <PointButton image={DisconnectImage} onClick={disconnect} ></PointButton>}
             {chat &&
               <MessageBlock>
-                <Notification></Notification>
+                {!isActiveChat && unread && <Notification></Notification>}
                 <PointButton image={ChatImage} enabled={isActiveChat} onClick={_ => chatButtonClicked(true)}></PointButton>
               </MessageBlock>}
             {settings &&

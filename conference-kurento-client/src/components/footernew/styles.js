@@ -45,7 +45,11 @@ export const SubBlock = styled.div.attrs(props => ({
     display: flex;
     flex-direction: row;
     justify-content: ${props => props.position};
-    button:not(:first-child){
+    & button:not(:first-child){
+        margin-left: 35px;
+    }
+
+    & div button{
         margin-left: 35px;
     }
 `;

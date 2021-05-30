@@ -425,9 +425,9 @@ export const MessageBlock = styled.div`
   overflow-y: auto;
   overflow-x: hidden;
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
   border: 1px solid #cccacb;
-  & div:last-child{
+  & div:first-child{
     margin-top: auto;
   }
 `;
