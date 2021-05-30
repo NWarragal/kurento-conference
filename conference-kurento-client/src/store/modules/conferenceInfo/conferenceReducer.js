@@ -74,7 +74,7 @@ const ConferenceReducer = (state = initialState, { type, payload }) => {
             let object2 = state.videoBlocks;
             let index2;
             for (let i = 0; i < object2.length; i++) {
-                if (object2[i].userId === payload.index) index = i;
+                if (object2[i].userId === payload.index) index2 = i;
             }
             let obj7 = {
                 ...state,
@@ -96,7 +96,7 @@ const ConferenceReducer = (state = initialState, { type, payload }) => {
         case CLEAR_VIDEOBLOCKS:
             let obj8 = {
                 ...state,
-                videoBlocks: []
+                videoBlocks: [...state.videoBlocks.slice(0, 1)]
             }
             return obj8;
         default:

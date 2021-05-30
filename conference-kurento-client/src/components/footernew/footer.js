@@ -11,7 +11,7 @@ import {
   Notification
 } from './styles';
 
-import { disconnect } from '../../helpers/server';
+import { disconnect, setPauseVideo, setPauseAudio, setPauseText } from '../../helpers/server';
 
 import CopyImage from '../../assets/copy.svg';
 import VideoImage from '../../assets/video-camera.svg';
@@ -39,24 +39,33 @@ function BottomFooterBlock() {
   let admin = useSelector(state => state.conferenceInfo.admin);
   let unread = useSelector(state => state.messages.unread);
 
-  const [isActiveAudio, setActiveAudio] = useState(false);
-  const [isActiveVideo, setActiveVideo] = useState(false);
-  const [isActiveText, setActiveText] = useState(false);
+  let isActiveVideo = useSelector(state => state.conferenceInfo.videoBlocks[0].videoActive);
+  let isActiveAudio = useSelector(state => state.conferenceInfo.videoBlocks[0].audioActive);
+  let isActiveText = useSelector(state => state.conferenceInfo.videoBlocks[0].chatActive);
   const [settingsModalOpened, setsettingsModalOpened] = useState(false);
   const [notifyModalOpened, setNotifyModalOpened] = useState(false);
   const [isActiveChat, setActiveChat] = useState(false);
 
   let dispatch = useDispatch();
 
-  const videoButtonClicked = 0;
-  const audioButtonClicked = 0;
-  const textButtonClicked = 0;
+  const videoButtonClicked = () => {
+    setPauseVideo(!isActiveVideo);
+  };
+
+  const audioButtonClicked = () => {
+    setPauseAudio();
+  };
+
+  const textButtonClicked = () => {
+    setPauseText();
+  };
+
   const settingsButtonClicked = (value) => {
     setsettingsModalOpened(value);
   };
 
   const chatButtonClicked = (value) => {
-    if(isActiveChat) {
+    if (isActiveChat) {
       dispatch(Messages.setUnread(false));
     }
     setActiveChat(value);
@@ -92,11 +101,11 @@ function BottomFooterBlock() {
         <TopBlock>
           <SubBlock position>
             {video &&
-              <PointButton image={VideoImage}></PointButton>}
+              <PointButton image={VideoImage} enabled={isActiveVideo} onClick={videoButtonClicked} ></PointButton>}
             {sound &&
-              <PointButton image={AudioImage} enabled={isActiveAudio} onClick={_ => setActiveAudio(!isActiveAudio)}></PointButton>}
+              <PointButton image={AudioImage} enabled={isActiveAudio} onClick={audioButtonClicked} ></PointButton>}
             {text &&
-              <PointButton image={TextImage}></PointButton>}
+              <PointButton image={TextImage} enabled={isActiveText} onClick={textButtonClicked} ></PointButton>}
           </SubBlock>
           <SubBlock>
             {quit && admin &&

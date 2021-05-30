@@ -1,5 +1,4 @@
 import kurentoUtils from 'kurento-utils';
-import * as Footer from '../store/modules/footerStatus/footerActions';
 import * as ErrorPage from '../store/modules/errorPage/errorActions';
 import * as Conference from '../store/modules/conferenceInfo/conferenceActions';
 import * as Messages from '../store/modules/messagesInfo/messagesActions';
@@ -15,8 +14,10 @@ var actualSubscriber;
 var onError;
 var startedViewers = false;
 let videoconnection = true;
+let audioconnection = true;
+let chatconnection = true;
 let localVideoStream;
-let localAudioStream;
+let userId;
 let isError = false;
 let isConnected = false;
 let isRegistered = false;
@@ -41,6 +42,10 @@ ws.onmessage = function (message) {
 	switch (parsedMessage.id) {
 		case 'presenterResponse':
 			presenterResponse(parsedMessage);
+			if(!videoconnection) {
+				videoconnection = true;
+				pause();
+			}
 			break;
 		case 'viewerResponse':
 			viewerResponse(parsedMessage);
@@ -59,6 +64,7 @@ ws.onmessage = function (message) {
 					webRtcPeer.addIceCandidate(parsedMessage.candidate);
 					break;
 				case 'viewer':
+				default:
 					ActiveSubscribing[actualSubscriber].addIceCandidate(parsedMessage.candidate);
 					break;
 			}
@@ -99,6 +105,7 @@ ws.onmessage = function (message) {
 			}
 			break;
 		case 'writeId':
+			userId = parsedMessage.userId;
 			isRegistered = true;
 			store.dispatch(ErrorPage.setReloadTOConf(true));
 			store.dispatch(Conference.setId(parsedMessage.room));
@@ -113,6 +120,9 @@ ws.onmessage = function (message) {
 				chatActive: parsedMessage.settings.chatActive,
 				isUser: true
 			}));
+			chatconnection = parsedMessage.settings.chatActive;
+			audioconnection = parsedMessage.settings.audioActive;
+			videoconnection = parsedMessage.settings.videoActive;
 			console.log('success');
 			presenter();
 			break;
@@ -131,6 +141,21 @@ ws.onmessage = function (message) {
 			store.dispatch(Messages.addMessage(newMessage));
 			store.dispatch(Messages.setUnread(true));
 			break;
+		case 'settingsUpdated':
+			console.log(parsedMessage.settings);
+			let status = store.getState().conferenceInfo.videoBlocks;
+			let exactStatus;
+			status.forEach(v => {
+				if (parsedMessage.sessionId == v.userId) exactStatus = v;
+			})
+			exactStatus = {
+				...exactStatus,
+				videoActive: parsedMessage.settings.videoActive,
+				audioActive: parsedMessage.settings.audioActive,
+				chatActive: parsedMessage.settings.chatActive,
+			}
+			store.dispatch(Conference.changeVideoBlock(exactStatus, parsedMessage.sessionId));
+			break;
 		default:
 			console.error('Unrecognized message', parsedMessage);
 	}
@@ -139,7 +164,7 @@ ws.onmessage = function (message) {
 
 
 function presenterResponse(message) {
-	if (message.response != 'accepted') {
+	if (message.response !== 'accepted') {
 		var errorMsg = message.message ? message.message : 'Unknow error';
 		console.warn('Call not accepted for the following reason: ' + errorMsg);
 		dispose();
@@ -166,7 +191,7 @@ function presenterResponse(message) {
 }
 
 function viewerResponse(message) {
-	if (message.response != 'accepted') {
+	if (message.response !== 'accepted') {
 		var errorMsg = message.message ? message.message : 'Unknow error';
 		console.warn('Call not accepted for the following reason: ' + errorMsg);
 		dispose();
@@ -177,7 +202,7 @@ function viewerResponse(message) {
 
 export function presenter() {
 	if (!webRtcPeer) {
-		setLocalStreams(0);
+		setLocalVideoStreams(0);
 
 		let options = {
 			videoStream: localVideoStream,
@@ -279,7 +304,7 @@ export function sendMessage(message) {
 	ws.send(jsonMessage);
 }
 
-function setLocalStreams(location) {
+function setLocalVideoStreams(location) {
 	navigator.mediaDevices.getUserMedia({
 		video: true
 	})
@@ -294,42 +319,27 @@ function setLocalStreams(location) {
 		});
 }
 
-export function pause(stream) {
-	// webRtcPeer.showLocalVideo(false);
-	// videoconnection = !videoconnection;
-	// padumath
+export function pause() {
 	if (videoconnection) {
 		localVideoStream.getTracks().forEach((v) => {
 			v.enabled = false;
 		})
 		videoconnection = false;
+	} else {
+		localVideoStream.getTracks().forEach((v) => {
+			v.enabled = true;
+		})
+		videoconnection = true;
 	}
-	// } else {
-	// 	localVideoStream.getTracks().forEach((v) => {
-	// 		v.enabled = true;
-	// 		v.start();
-	// 	})
-	// 	videoconnection = true;
-	// }
 }
 
-export function closePeer(stream) {
-	// webRtcPeer.showLocalVideo(false);
-	// videoconnection = !videoconnection;
-	// padumath
+export function closePeer() {
 	if (videoconnection) {
 		localVideoStream.getTracks().forEach((v) => {
 			v.stop();
 		})
 		videoconnection = false;
 	}
-	// } else {
-	// 	localVideoStream.getTracks().forEach((v) => {
-	// 		v.enabled = true;
-	// 		v.start();
-	// 	})
-	// 	videoconnection = true;
-	// }
 }
 
 export function register(room, settings) {
@@ -375,5 +385,47 @@ export function sendMessageModal(message) {
 		id: 'sendMessage',
 		value: message,
 		time: `${date.getHours()}:${date.getMinutes()}`
+	})
+}
+
+export function setPauseVideo() {
+	let status = store.getState().conferenceInfo.videoBlocks[0];
+	status = {
+		...status,
+		videoActive: !videoconnection
+	}
+	pause();
+	store.dispatch(Conference.changeVideoBlock(status, userId));
+	sendMessage({
+		id: 'updateSettings',
+		settings: status
+	})
+}
+
+export function setPauseAudio() {
+	let status = store.getState().conferenceInfo.videoBlocks[0];
+	status = {
+		...status,
+		audioActive: !audioconnection
+	}
+	audioconnection = !audioconnection;
+	store.dispatch(Conference.changeVideoBlock(status, userId));
+	sendMessage({
+		id: 'updateSettings',
+		settings: status
+	})
+}
+
+export function setPauseText() {
+	let status = store.getState().conferenceInfo.videoBlocks[0];
+	status = {
+		...status,
+		chatActive: !chatconnection
+	}
+	chatconnection = !chatconnection;
+	store.dispatch(Conference.changeVideoBlock(status, userId));
+	sendMessage({
+		id: 'updateSettings',
+		settings: status
 	})
 }

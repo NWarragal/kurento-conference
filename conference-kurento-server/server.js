@@ -173,6 +173,11 @@ wss.on('connection', function (ws) {
 			case 'sendMessage':
 				resendMessageToAllActive(userList.usersById[sessionId].room, message.value, message.time);
 				break;
+
+			case 'updateSettings':
+				userList.usersById[sessionId].settings = message.settings;
+				notifyAllUsersUpdateSettings(sessionId, userList.usersById[sessionId].room, message.settings);
+				break;
 			default:
 				ws.send(JSON.stringify({
 					id: 'error',
@@ -446,6 +451,18 @@ function notifyAllUsers(sessionId, room) {
 				id: 'newUser',
 				userId: sessionId,
 				settings: userList.usersById[sessionId].settings
+			})
+	});
+}
+
+function notifyAllUsersUpdateSettings(sessionId, room, settings) {
+	let list = userList.getUsersByRoom(room);
+	list.forEach(v => {
+		if (v.id !== sessionId)
+			v.sendMessage({
+				id: 'settingsUpdated',
+				settings: settings,
+				sessionId
 			})
 	});
 }
