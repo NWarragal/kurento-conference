@@ -1,7 +1,8 @@
 import {
   SET_ERROR,
   SET_RELOAD_ERROR_PAGE_REQUEST,
-  SET_RELOAD_CONF_PAGE_REQUEST
+  SET_RELOAD_CONF_PAGE_REQUEST,
+  SET_RELOAD_HOME_PAGE_REQUEST
 } from "./errorActionsTypes";
 
 const setError = (payload) => ({
@@ -19,8 +20,14 @@ const setReloadTOConf = (payload) => ({
   payload
 });
 
+const setReloadTOHome = (payload) => ({
+  type: SET_RELOAD_HOME_PAGE_REQUEST,
+  payload
+});
+
 export {
   setError,
   setReloadTOError,
-  setReloadTOConf
+  setReloadTOConf,
+  setReloadTOHome
 };

@@ -79,7 +79,7 @@ const ConferenceReducer = (state = initialState, { type, payload }) => {
             let obj7 = {
                 ...state,
                 videoBlocks: [
-                    ...state.videoBlocks.slice(index2 - 1),
+                    ...state.videoBlocks.slice(0, index2),
                     payload.data,
                     ...state.videoBlocks.slice(index2 + 1)
                 ]

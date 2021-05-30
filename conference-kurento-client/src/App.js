@@ -2,7 +2,6 @@ import React from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
-import Example from './Example';
 import Footer from './components/footernew/footer';
 import MainFormBlock from './components/startPage/startPage';
 import ErrorPageBlock from './components/errorPage/ErrorPage';
@@ -17,7 +16,6 @@ function App() {
   
   return (
     <>
-    {/* <Example /> */}
     <AppWrapper>
       <Redirect push to="/home" />
       

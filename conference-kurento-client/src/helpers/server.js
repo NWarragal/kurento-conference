@@ -51,7 +51,6 @@ ws.onmessage = function (message) {
 			viewerResponse(parsedMessage);
 			break;
 		case 'stopCommunication':
-			console.log(parsedMessage.userId);
 			store.dispatch(Conference.removeVideoBlock(parsedMessage.userId));
 			dispose(parsedMessage.userId);
 			break;
@@ -248,6 +247,7 @@ function stop() {
 		}
 		sendMessage(message);
 		dispose();
+		store.dispatch(ErrorPage.setReloadTOHome(true));
 	}
 }
 
@@ -255,6 +255,7 @@ function dispose(userId) {
 	if (!userId) {
 		if (webRtcPeer) {
 			webRtcPeer.dispose();
+			closePeer();
 			for (let i in ActiveSubscribing) {
 				ActiveSubscribing[i].dispose();
 			}
@@ -313,6 +314,25 @@ export function pause(stream) {
 	// }
 }
 
+export function closePeer(stream) {
+	// webRtcPeer.showLocalVideo(false);
+	// videoconnection = !videoconnection;
+	// padumath
+	if (videoconnection) {
+		localVideoStream.getTracks().forEach((v) => {
+			v.stop();
+		})
+		videoconnection = false;
+	}
+	// } else {
+	// 	localVideoStream.getTracks().forEach((v) => {
+	// 		v.enabled = true;
+	// 		v.start();
+	// 	})
+	// 	videoconnection = true;
+	// }
+}
+
 export function register(room, settings) {
 	if (isError || !isConnected) {
 		store.dispatch(ErrorPage.setError('Could not connect to server!'));
@@ -346,5 +366,6 @@ export function createRoom(room, settings) {
 }
 
 export function disconnect() {
-
+	store.dispatch(Conference.clearVideoBlocks());
+	stop();
 }

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useHistory } from "react-router-dom";
 import { useSelector } from 'react-redux';
 
 import {
@@ -11,6 +10,8 @@ import {
   MessageBlock,
   Notification
 } from './styles';
+
+import { disconnect } from '../../helpers/server';
 
 import CopyImage from '../../assets/copy.svg';
 import VideoImage from '../../assets/video-camera.svg';
@@ -25,7 +26,7 @@ import ModalWindow from '../modalWindow/modalWindow';
 import Typography from '../Typography/typography';
 import PointButton from '../pointButton/pointButton';
 
-function BottomFooterBlock({ admin }) {
+function BottomFooterBlock() {
   let chat = useSelector(state => state.footer.chat);
   let copy = useSelector(state => state.footer.copy);
   let sound = useSelector(state => state.footer.sound);
@@ -34,35 +35,24 @@ function BottomFooterBlock({ admin }) {
   let quit = useSelector(state => state.footer.quit);
   let settings = useSelector(state => state.footer.settings);
   let conferenceId = useSelector(state => state.conferenceInfo.conferenceId);
+  let admin = useSelector(state => state.conferenceInfo.admin);
 
   const [isActiveAudio, setActiveAudio] = useState(false);
   const [isActiveVideo, setActiveVideo] = useState(false);
   const [isActiveText, setActiveText] = useState(false);
   const [settingsModalOpened, setsettingsModalOpened] = useState(false);
   const [notifyModalOpened, setNotifyModalOpened] = useState(false);
-  const [isUserAdmin, setUserAdmin] = useState(false);
   const [isActiveChat, setActiveChat] = useState(false);
-  const [isMainPage, setMainPage] = useState(false);
 
   const videoButtonClicked = 0;
   const audioButtonClicked = 0;
   const textButtonClicked = 0;
-  const disconnectButtonClicked = 0;
-  const closeConferenceButtonClicked = 0;
   const settingsButtonClicked = (value) => {
     setsettingsModalOpened(value);
   };
   const chatButtonClicked = (value) => {
     setActiveChat(value);
   };
-  const getActivityParams = 0;
-
-  const history = useHistory();
-
-  const routeChange = (log) => {
-    let path = log;
-    history.push(path);
-  }
 
   function copyConferenceId() {
     navigator.clipboard.writeText(conferenceId)
@@ -101,10 +91,10 @@ function BottomFooterBlock({ admin }) {
               <PointButton image={TextImage}></PointButton>}
           </SubBlock>
           <SubBlock>
-            {quit && !admin &&
-              <PointButton image={CloseImage}></PointButton>}
             {quit && admin &&
-              <PointButton image={DisconnectImage}></PointButton>}
+              <PointButton image={CloseImage} onClick={disconnect} ></PointButton>}
+            {quit && !admin &&
+              <PointButton image={DisconnectImage} onClick={disconnect} ></PointButton>}
             {chat &&
               <MessageBlock>
                 <Notification></Notification>

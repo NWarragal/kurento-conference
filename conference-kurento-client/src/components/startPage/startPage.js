@@ -23,6 +23,7 @@ import LocStorageClass from '../../helpers/localStorageParser';
 import { register, createRoom, setUnregistered } from '../../helpers/server';
 
 import { setHome } from '../../store/modules/footerStatus/footerActions';
+import { setReloadTOHome } from '../../store/modules/errorPage/errorActions';
 import { useDispatch } from 'react-redux';
 
 function MainFormBlock({ }) {
@@ -38,6 +39,7 @@ function MainFormBlock({ }) {
     const dispatch = useDispatch();
 
     useEffect(() => {
+        dispatch(setReloadTOHome(false));
         dispatch(setHome());
         setUnregistered();
     }, [])
