@@ -1,7 +1,8 @@
 import {
   ADD_MESSAGE,
   CLEAR_CHAT,
-  SET_UNREAD
+  SET_UNREAD,
+  SET_MESSAGE_LIMIT
 } from "./messagesActionsTypes";
 
 const addMessage = (payload) => ({
@@ -18,8 +19,15 @@ const setUnread = (payload) => ({
   payload
 });
 
+const setLimit = (payload) => ({
+  type: SET_MESSAGE_LIMIT,
+  payload
+});
+
+
 export {
   addMessage,
   ClearChat,
-  setUnread
+  setUnread,
+  setLimit
 };

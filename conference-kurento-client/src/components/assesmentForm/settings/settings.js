@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useSelector } from 'react-redux';
 
 import {
     SuccessTitle,
@@ -15,6 +16,8 @@ import LocStorageClass from '../../../helpers/localStorageParser';
 
 const SettingsModal = ({ onClose, isMainpage = true }) => {
     const storage = new LocStorageClass();
+    let page = useSelector(state => state.footer.currentPage);
+
     const [settingsState, setSettingsState] = useState(storage.getAllValues());
     const [isError, setError] = useState('');
 
@@ -60,6 +63,7 @@ const SettingsModal = ({ onClose, isMainpage = true }) => {
                     <TextInput
                         width={"300px"}
                         height={"40px"}
+                        disabled={page !== 'home'}
                         value={settingsState.nickname}
                         onChange={v => setSettingsState({ ...settingsState, nickname: v.target.value })}
                         disabled={!isMainpage}
@@ -76,6 +80,7 @@ const SettingsModal = ({ onClose, isMainpage = true }) => {
                     <TextInput
                         width={"75px"}
                         height={"40px"}
+                        disabled={page !== 'home'}
                         value={settingsState.messageLimit + ''}
                         onChange={v => {
                             setSettingsState({ ...settingsState, messageLimit: v.target.value })

@@ -365,6 +365,7 @@ export function register(room, settings) {
 		store.dispatch(ErrorPage.setError('Could not connect to server!'));
 		store.dispatch(ErrorPage.setReloadTOError(true));
 	} else {
+		store.dispatch(Messages.setLimit(settings.messageLimit));
 		if (!isRegistered)
 			sendMessage({
 				id: "register",
