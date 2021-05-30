@@ -52,6 +52,7 @@ ws.onmessage = function (message) {
 			viewerResponse(parsedMessage);
 			break;
 		case 'stopCommunication':
+			store.dispatch(Conference.removeVideoBlock(parsedMessage.userId));
 			dispose(parsedMessage.userId);
 			break;
 		case 'iceCandidate':

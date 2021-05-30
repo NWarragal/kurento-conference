@@ -4,7 +4,8 @@ import {
     SET_LOADING,
     ADD_VIDEOBLOCK,
     REMOVE_VIDEOBLOCK,
-    SET_BASIC_VIDEOBLOCK
+    SET_BASIC_VIDEOBLOCK,
+    CHANGE_VIDEOBLOCK
 } from "./conferenceActionsTypes";
 
 const initialState = {
@@ -51,13 +52,33 @@ const ConferenceReducer = (state = initialState, { type, payload }) => {
             }
             return obj4;
         case REMOVE_VIDEOBLOCK:
-            let videoarray1 = state.videoBlocks;
-            videoarray1.splice(payload.number, 1);
+            let object = state.videoBlocks;
+            let index;
+            for (let i = 0; i < object.length; i++) {
+                if (object[i].userId === payload) index = i;
+            }
             let obj5 = {
                 ...state,
-                videoBlocks: videoarray1
+                videoBlocks: [
+                    ...state.videoBlocks.splice(index, 1)
+                ]
             }
             return obj5;
+        case CHANGE_VIDEOBLOCK:
+            let object2 = state.videoBlocks;
+            let index2;
+            for (let i = 0; i < object2.length; i++) {
+                if (object2[i].userId === payload.index) index = i;
+            }
+            let obj7 = {
+                ...state,
+                videoBlocks: [
+                    ...state.videoBlocks.slice(index2 - 1),
+                    payload.data,
+                    ...state.videoBlocks.slice(index2 + 1)
+                ]
+            }
+            return obj7;
         case SET_BASIC_VIDEOBLOCK:
             let videoarray2 = state.videoBlocks[0];
             videoarray2 = payload;
