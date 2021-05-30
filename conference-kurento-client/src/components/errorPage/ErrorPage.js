@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { useHistory } from "react-router-dom";
-import { setHome } from '../../store/modules/footerStatus/footerActions';
 import { useDispatch } from 'react-redux';
 import { setReloadTOError } from '../../store/modules/errorPage/errorActions';
 import { setError } from '../../store/modules/footerStatus/footerActions';

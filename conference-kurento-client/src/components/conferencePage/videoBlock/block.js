@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 
 import {
     VideoWrapper,
@@ -19,6 +19,8 @@ import DeleteImage from '../../../assets/cancel.svg';
 import Typography from "../../Typography/typography";
 import SmallPointButton from '../../pointButton/smallPointButton';
 
+import { adminActivities } from '../../../helpers/server';
+
 
 const SimpleVideoBlock = ({
     secureId,
@@ -28,8 +30,10 @@ const SimpleVideoBlock = ({
     videoEnabled,
     soundEnabled,
     textEnabled,
-    you
+    you,
+    id
 }) => {
+    console.log(id);
     return (
         <VideoWrapper>
             {!videoEnabled &&
@@ -48,11 +52,31 @@ const SimpleVideoBlock = ({
                 </BottomLeftBlock>
                 <BottomRightBlock>
                     {!you ?
-                    <>
-                    <SmallPointButton image={VideoImage} enabled={videoEnabled} admin={admin} ></SmallPointButton>
-                    <SmallPointButton image={AudioImage} enabled={soundEnabled} admin={admin}></SmallPointButton>
-                    <SmallPointButton image={TextImage} enabled={textEnabled} admin={admin}></SmallPointButton>
-                    {admin && <SmallPointButton image={DeleteImage} width={15} admin={admin}></SmallPointButton>}</> : null}
+                        <>
+                            <SmallPointButton
+                                image={VideoImage}
+                                enabled={videoEnabled}
+                                admin={admin}
+                                onClick={_ => admin && adminActivities('video')}
+                            ></SmallPointButton>
+                            <SmallPointButton
+                                image={AudioImage}
+                                enabled={soundEnabled}
+                                admin={admin}
+                                onClick={_ => admin && adminActivities('audio')}
+                            ></SmallPointButton>
+                            <SmallPointButton
+                                image={TextImage}
+                                enabled={textEnabled}
+                                admin={admin}
+                                onClick={_ => admin && adminActivities('text')}
+                            ></SmallPointButton>
+                            {admin && <SmallPointButton
+                                image={DeleteImage}
+                                width={15}
+                                admin={admin}
+                                onClick={_ => admin && adminActivities('disconnect')}
+                            ></SmallPointButton>}</> : null}
                 </BottomRightBlock>
             </BottomBlock>
         </VideoWrapper>

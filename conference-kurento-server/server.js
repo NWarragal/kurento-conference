@@ -178,6 +178,13 @@ wss.on('connection', function (ws) {
 				userList.usersById[sessionId].settings = message.settings;
 				notifyAllUsersUpdateSettings(sessionId, userList.usersById[sessionId].room, message.settings);
 				break;
+
+			case 'adminActivities':
+				userList.usersById[message.userId].send({
+					id: 'adminRequest',
+					statusCode: message.statusCode
+				});
+				break;
 			default:
 				ws.send(JSON.stringify({
 					id: 'error',

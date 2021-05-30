@@ -42,7 +42,7 @@ ws.onmessage = function (message) {
 	switch (parsedMessage.id) {
 		case 'presenterResponse':
 			presenterResponse(parsedMessage);
-			if(!videoconnection) {
+			if (!videoconnection) {
 				videoconnection = true;
 				pause();
 			}
@@ -146,7 +146,7 @@ ws.onmessage = function (message) {
 			let status = store.getState().conferenceInfo.videoBlocks;
 			let exactStatus;
 			status.forEach(v => {
-				if (parsedMessage.sessionId == v.userId) exactStatus = v;
+				if (parsedMessage.sessionId === v.userId) exactStatus = v;
 			})
 			exactStatus = {
 				...exactStatus,
@@ -155,6 +155,24 @@ ws.onmessage = function (message) {
 				chatActive: parsedMessage.settings.chatActive,
 			}
 			store.dispatch(Conference.changeVideoBlock(exactStatus, parsedMessage.sessionId));
+			break;
+		case 'adminRequest':
+			switch (parsedMessage.statusCode) {
+				case 'video':
+					setPauseVideo();
+					break;
+				case 'audio':
+					setPauseAudio();
+					break;
+				case 'text':
+					setPauseText();
+					break;
+				case 'disconnect':
+					disconnect();
+					break;
+				default:
+					console.log('error');
+			}
 			break;
 		default:
 			console.error('Unrecognized message', parsedMessage);
@@ -427,5 +445,13 @@ export function setPauseText() {
 	sendMessage({
 		id: 'updateSettings',
 		settings: status
+	})
+}
+
+export function adminActivities(command, id) {
+	sendMessage({
+		id: 'adminActivities',
+		statusCode: command,
+		userId: id
 	})
 }

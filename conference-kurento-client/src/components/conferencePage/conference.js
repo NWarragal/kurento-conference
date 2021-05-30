@@ -13,7 +13,7 @@ import {
 import Loader from '../loader/loader';
 import SimpleVideoBlock from './videoBlock/block';
 
-const ConferencePageBlock = ({ }) => {
+const ConferencePageBlock = () => {
     let reloadToHomePage = useSelector(state => state.error.reloadToHomePage);
     let videos = useSelector(state => state.conferenceInfo.videoBlocks);
     let admin = useSelector(state => state.conferenceInfo.admin);
@@ -38,6 +38,7 @@ const ConferencePageBlock = ({ }) => {
                         secureId={v.videoTag}
                         name={v.nickname}
                         admin={admin}
+                        id={v.userId}
                         //active
                         videoEnabled={v.videoActive}
                         soundEnabled={v.audioActive}

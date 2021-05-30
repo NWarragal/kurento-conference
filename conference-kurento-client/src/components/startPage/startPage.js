@@ -26,7 +26,7 @@ import { setHome } from '../../store/modules/footerStatus/footerActions';
 import { setReloadTOHome } from '../../store/modules/errorPage/errorActions';
 import { useDispatch } from 'react-redux';
 
-function MainFormBlock({ }) {
+function MainFormBlock() {
     const storage = new LocStorageClass();
 
     let reloadToErrorPage = useSelector(state => state.error.reloadToErrorPage);
