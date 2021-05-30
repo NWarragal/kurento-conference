@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useHistory } from "react-router-dom";
 import { v4 as uuidv4 } from 'uuid';
 import { useSelector } from 'react-redux';
 import { Redirect } from 'react-router-dom';
@@ -21,7 +20,7 @@ import TextInput from '../TextInput/textinput'
 import CallImage from '../../assets/phone-call.svg';
 import ModalWindow from '../modalWindow/modalWindow';
 import LocStorageClass from '../../helpers/localStorageParser';
-import { register, createRoom } from '../../helpers/server';
+import { register, createRoom, setUnregistered } from '../../helpers/server';
 
 import { setHome } from '../../store/modules/footerStatus/footerActions';
 import { useDispatch } from 'react-redux';
@@ -30,23 +29,18 @@ function MainFormBlock({ }) {
     const storage = new LocStorageClass();
 
     let reloadToErrorPage = useSelector(state => state.error.reloadToErrorPage);
+    let reloadToConfPage = useSelector(state => state.error.reloadToConfPage);
 
     const [isError, setActiveError] = useState(false);
     const [message, setMessage] = useState('');
     const [conferenceId, setConferenceId] = useState('');
 
-    const history = useHistory();
     const dispatch = useDispatch();
 
     useEffect(() => {
         dispatch(setHome());
+        setUnregistered();
     }, [])
-
-
-    const routeChange = (log) => {
-        let path = log;
-        history.push(path);
-    }
 
     const onNotificationClosed = () => {
         setMessage('');
@@ -73,8 +67,6 @@ function MainFormBlock({ }) {
 
     const registerConf = () => {
         if (validation(true)) register(conferenceId, storage.getAllValues());
-        // dispatch(setError());
-        // routeChange("error");
     }
 
     const createRoomConf = () => {
@@ -82,14 +74,14 @@ function MainFormBlock({ }) {
             let uniqueId = uuidv4();
             createRoom(uniqueId, storage.getAllValues());
         }
-        // dispatch(setError());
-        // routeChange("error");
     }
 
     return (
         <Wrapper>
             {reloadToErrorPage &&
                 <Redirect push to="/error" />}
+            {reloadToConfPage &&
+                <Redirect push to="/conf" />}
             {isError && <ModalWindow
                 mode={"info"}
                 onClose={onNotificationClosed}

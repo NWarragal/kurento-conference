@@ -1,6 +1,7 @@
 import kurentoUtils from 'kurento-utils';
-import { setConf, setError } from '../store/modules/footerStatus/footerActions';
+import * as Footer from '../store/modules/footerStatus/footerActions';
 import * as ErrorPage from '../store/modules/errorPage/errorActions';
+import * as Conference from '../store/modules/conferenceInfo/conferenceActions';
 import store from '../store/store';
 
 var ws = new WebSocket('wss://localhost:8443/server');
@@ -69,6 +70,7 @@ ws.onmessage = function (message) {
 				if (activeUsesList[0] && activeUsesList[activeUsersIndex]) startedViewers = true;
 				activeUsesList[0] && activeUsesList[activeUsersIndex] && activeUsersIndex++;
 			}
+			store.dispatch(Conference.setLoading(false));
 			break;
 		case 'readyViewer':
 			startedViewers = false;
@@ -79,9 +81,18 @@ ws.onmessage = function (message) {
 			}
 			break;
 		case 'newUser':
+			store.dispatch(Conference.addVideoBlock({
+				nickname: parsedMessage.settings.nickname,
+				userId: parsedMessage.userId,
+				videoTag: 'videoUser' + parsedMessage.userId,
+				videoActive: parsedMessage.settings.videoActive,
+				audioActive: parsedMessage.settings.audioActive,
+				chatActive: parsedMessage.settings.chatActive,
+				isUser: false
+			}));
 			activeUsesList.push(parsedMessage.userId);
 			if (!startedViewers) {
-				VideoMs[parsedMessage.userId] = document.getElementById('video' + (activeUsersIndex + 2));
+				VideoMs[parsedMessage.userId] = document.getElementById('videoUser' + parsedMessage.userId);
 				ActiveSubscribing[parsedMessage.userId] = null;
 				activeUsesList[0] && activeUsesList[activeUsersIndex] && viewer(activeUsesList[activeUsersIndex]);
 				if (activeUsesList[0] && activeUsesList[activeUsersIndex]) startedViewers = true;
@@ -91,10 +102,27 @@ ws.onmessage = function (message) {
 		case 'writeId':
 			userId = parsedMessage.userId;
 			isRegistered = true;
+			store.dispatch(ErrorPage.setReloadTOConf(true));
+			store.dispatch(Conference.setId(parsedMessage.room));
+			store.dispatch(Conference.setAdmin(parsedMessage.admin));
+			store.dispatch(Conference.setLoading(true));
+			store.dispatch(Conference.setBasicVideoBlock({
+				nickname: 'You',
+				userId: parsedMessage.userId,
+				videoTag: 'videoUser',
+				videoActive: parsedMessage.settings.videoActive,
+				audioActive: parsedMessage.settings.audioActive,
+				chatActive: parsedMessage.settings.chatActive,
+				isUser: true
+			}));
 			console.log('success');
+			presenter();
 			break;
 		case 'errorRegister':
 			console.log(parsedMessage.status);
+			store.dispatch(ErrorPage.setError('Could not register in conference! Maybe this id is invalid'));
+			store.dispatch(ErrorPage.setReloadTOError(true));
+			isRegistered = false;
 			break;
 		default:
 			console.error('Unrecognized message', parsedMessage);
@@ -109,12 +137,22 @@ function presenterResponse(message) {
 		console.warn('Call not accepted for the following reason: ' + errorMsg);
 		dispose();
 	} else {
-		console.log(message.activeUsersList);
-		message.activeUsersList.forEach((v, i) => {
+		console.log(message.activeUserSettingsList);
+		for (let i in message.activeUserSettingsList){
+			store.dispatch(Conference.addVideoBlock({
+				nickname: message.activeUserSettingsList[i].nickname,
+				userId: i,
+				videoTag: 'videoUser' + i,
+				videoActive: message.activeUserSettingsList[i].videoActive,
+				audioActive: message.activeUserSettingsList[i].audioActive,
+				chatActive: message.activeUserSettingsList[i].chatActive,
+				isUser: false
+			}));
+			VideoMs[i] = document.getElementById('videoUser' + i);
+		}
+		message.activeUsersList.forEach((v) => {
 			ActiveSubscribing[v] = null;
 			activeUsesList.push(v);
-			if (i + 2 <= 4)
-				VideoMs[v] = document.getElementById('video' + (i + 2));
 		});
 		webRtcPeer.processAnswer(message.sdpAnswer);
 	}
@@ -132,7 +170,7 @@ function viewerResponse(message) {
 
 export function presenter() {
 	if (!webRtcPeer) {
-		setLocalStreams();
+		setLocalStreams(0);
 
 		let options = {
 			videoStream: localVideoStream,
@@ -209,23 +247,24 @@ function stop() {
 }
 
 function dispose(userId) {
-	// if (!userId) {
-	if (webRtcPeer) {
-		webRtcPeer.dispose();
-		for (let i in ActiveSubscribing) {
-			ActiveSubscribing[i].dispose();
+	if (!userId) {
+		if (webRtcPeer) {
+			webRtcPeer.dispose();
+			for (let i in ActiveSubscribing) {
+				ActiveSubscribing[i].dispose();
+			}
+			webRtcPeer = null;
+			ActiveSubscribing = {};
+			VideoMs = {};
+			activeUsersIndex = 0;
+			activeUsesList = [];
+			isRegistered = false;
+			// notify = false;
 		}
-		webRtcPeer = null;
-		ActiveSubscribing = {};
-		VideoMs = {};
-		activeUsersIndex = 0;
-		activeUsesList = [];
-		// notify = false;
+	} else {
+		ActiveSubscribing[userId].dispose();
+		delete ActiveSubscribing[userId];
 	}
-	// } else {
-	// 	ActiveSubscribing[userId].dispose();
-	// 	delete ActiveSubscribing[userId];
-	// }
 }
 
 export function sendMessage(message) {
@@ -234,11 +273,13 @@ export function sendMessage(message) {
 	ws.send(jsonMessage);
 }
 
-function setLocalStreams() {
+function setLocalStreams(location) {
 	navigator.mediaDevices.getUserMedia({
 		video: true
 	})
 		.then(function (stream) {
+			let id = '#' + store.getState().conferenceInfo.videoBlocks[location].videoTag;
+			let video1 = document.querySelector(id);
 			video1.srcObject = stream;
 			localVideoStream = stream;
 		})
@@ -278,6 +319,10 @@ export function register(room, settings) {
 				settings
 			});
 	}
+}
+
+export function setUnregistered() {
+	isRegistered = false;
 }
 
 export function createRoom(room, settings) {

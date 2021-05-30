@@ -4,6 +4,7 @@ import {
   SET_LOADING,
   ADD_VIDEOBLOCK,
   REMOVE_VIDEOBLOCK,
+  SET_BASIC_VIDEOBLOCK
 } from "./conferenceActionsTypes";
 
 const setAdmin = (payload) => ({
@@ -31,10 +32,16 @@ const removeVideoBlock = (number) => ({
   payload: { number }
 });
 
+const setBasicVideoBlock = (number) => ({
+  type: SET_BASIC_VIDEOBLOCK,
+  payload: { number }
+});
+
 export {
   setAdmin,
   setId,
   setLoading,
   addVideoBlock,
-  removeVideoBlock
+  removeVideoBlock,
+  setBasicVideoBlock
 };

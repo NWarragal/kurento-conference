@@ -39,6 +39,7 @@ function BottomFooterBlock({ admin }) {
   const [isActiveVideo, setActiveVideo] = useState(false);
   const [isActiveText, setActiveText] = useState(false);
   const [settingsModalOpened, setsettingsModalOpened] = useState(false);
+  const [notifyModalOpened, setNotifyModalOpened] = useState(false);
   const [isUserAdmin, setUserAdmin] = useState(false);
   const [isActiveChat, setActiveChat] = useState(false);
   const [isMainPage, setMainPage] = useState(false);
@@ -58,16 +59,32 @@ function BottomFooterBlock({ admin }) {
 
   const history = useHistory();
 
-    const routeChange = (log) => {
-        let path = log;
-        history.push(path);
-    }
+  const routeChange = (log) => {
+    let path = log;
+    history.push(path);
+  }
+
+  function copyConferenceId() {
+    navigator.clipboard.writeText(conferenceId)
+      .then(() => {
+        console.log("Copied text");
+        setNotifyModalOpened(true);
+      })
+      .catch(err => {
+        console.log('Something went wrong', err);
+      });
+  }
 
   return (
     <Wrapper>
       {settingsModalOpened && <ModalWindow
         mode={"settings"}
         onClose={settingsButtonClicked}
+      ></ModalWindow>}
+      {notifyModalOpened && <ModalWindow
+        mode={"info"}
+        onClose={setNotifyModalOpened}
+        message={"Successfully copied value to clipboard!"}
       ></ModalWindow>}
       {isActiveChat && <ModalWindow
         mode={"chat"}
@@ -102,7 +119,10 @@ function BottomFooterBlock({ admin }) {
         <CenterBlock>
           {copy &&
             <>
-              <PointButton image={CopyImage}></PointButton>
+              <PointButton
+                image={CopyImage}
+                onClick={copyConferenceId}
+              ></PointButton>
               <Typography
                 line_height={"42px"}
                 text={`Conference ID:    `}
@@ -111,6 +131,7 @@ function BottomFooterBlock({ admin }) {
               />
               <Typography
                 line_height={"42px"}
+                id={'forCopy'}
                 text={conferenceId}
                 preset={"body_18px_400"}
                 color={"#fff"}

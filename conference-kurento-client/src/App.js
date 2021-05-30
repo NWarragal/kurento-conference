@@ -4,7 +4,6 @@ import { useSelector } from 'react-redux';
 
 import Example from './Example';
 import Footer from './components/footernew/footer';
-import Loader from './components/loader/loader';
 import MainFormBlock from './components/startPage/startPage';
 import ErrorPageBlock from './components/errorPage/ErrorPage';
 import ConferencePageBlock from './components/conferencePage/conference';

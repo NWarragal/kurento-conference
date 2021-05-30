@@ -37,7 +37,7 @@ const SimpleVideoBlock = ({
                     <UserLogo src={Logo} ></UserLogo>
                 </VideoHideDiv>
             }
-            <VideoTransitionBlock id={secureId} active={active}></VideoTransitionBlock>
+            <VideoTransitionBlock id={secureId} active={active} autoPlay></VideoTransitionBlock>
             <BottomBlock>
                 <BottomLeftBlock>
                     <Typography

@@ -1,6 +1,8 @@
-import React from "react";
-import { useHistory } from "react-router-dom";
+import React, { useEffect } from "react";
 import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { setReloadTOConf } from '../../store/modules/errorPage/errorActions';
+import { setConf } from '../../store/modules/footerStatus/footerActions';
 
 import {
     Wrapper,
@@ -15,13 +17,12 @@ const ConferencePageBlock = ({ }) => {
     let admin = useSelector(state => state.conferenceInfo.admin);
     let isLoading = useSelector(state => state.conferenceInfo.isLoading);
 
-    // move to footer ???
-    const history = useHistory();
+    const dispatch = useDispatch();
 
-    const routeChange = (log) => {
-        let path = log;
-        history.push(path);
-    }
+    useEffect(() => {
+        dispatch(setReloadTOConf(false));
+        dispatch(setConf());
+    }, [])
 
     return (
         <Wrapper>
@@ -29,7 +30,8 @@ const ConferencePageBlock = ({ }) => {
             <CenterBlock>
                 {videos.map(v => 
                     <SimpleVideoBlock
-                        id={v.videoTag}
+                        key={v.videoTag}
+                        secureId={v.videoTag}
                         name={v.nickname}
                         admin={admin}
                         //active

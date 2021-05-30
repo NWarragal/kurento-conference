@@ -4,6 +4,7 @@ import {
     SET_LOADING,
     ADD_VIDEOBLOCK,
     REMOVE_VIDEOBLOCK,
+    SET_BASIC_VIDEOBLOCK
 } from "./conferenceActionsTypes";
 
 const initialState = {
@@ -44,11 +45,9 @@ const ConferenceReducer = (state = initialState, { type, payload }) => {
             }
             return obj3;
         case ADD_VIDEOBLOCK:
-            let videoarray = state.videoBlocks;
-            videoarray.push(payload);
             let obj4 = {
                 ...state,
-                videoBlocks: videoarray
+                videoBlocks: [...state.videoBlocks, payload]
             }
             return obj4;
         case REMOVE_VIDEOBLOCK:
@@ -59,6 +58,14 @@ const ConferenceReducer = (state = initialState, { type, payload }) => {
                 videoBlocks: videoarray1
             }
             return obj5;
+        case SET_BASIC_VIDEOBLOCK:
+            let videoarray2 = state.videoBlocks[0];
+            videoarray2 = payload;
+            let obj6 = {
+                ...state,
+                videoBlocks: [videoarray2.number]
+            }
+            return obj6;
         default:
             return state;
     }

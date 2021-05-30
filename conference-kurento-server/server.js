@@ -83,11 +83,13 @@ wss.on('connection', function (ws) {
 					}
 					// sending users ids list for subscribing
 					let usersIdList = getUsersList(userList.usersById[sessionId].room, sessionId);
+					let activeUserSettingsList = getUsersSettingsList(userList.usersById[sessionId].room, sessionId);
 					ws.send(JSON.stringify({
 						id: 'presenterResponse',
 						response: 'accepted',
 						sdpAnswer: sdpAnswer,
-						activeUsersList: usersIdList
+						activeUsersList: usersIdList,
+						activeUserSettingsList
 					}));
 					userList.usersById[sessionId].sendMessage({
 						id: 'ready'
@@ -121,10 +123,13 @@ wss.on('connection', function (ws) {
 			case 'register':
 				if (checkIsAvailible(message.room)) {
 					if (!userList.getById(sessionId))
-						userList.register(new UserSession(sessionId, message.name, ws, message.room));
+						userList.register(new UserSession(sessionId, message.name, ws, message.room, message.settings));
 					ws.send(JSON.stringify({
 						id: 'writeId',
 						userId: sessionId,
+						room: message.room,
+						settings: message.settings,
+						admin: false
 					}));
 				} else {
 					ws.send(JSON.stringify({
@@ -139,11 +144,14 @@ wss.on('connection', function (ws) {
 					activeRooms.push(message.room);
 					if (message.settings.nickname) {
 						if (!userList.getById(sessionId))
-							userList.register(new UserSession(sessionId, message.settings.nickname, ws, message.room));
+							userList.register(new UserSession(sessionId, message.settings.nickname, ws, message.room, message.settings));
 						userList.usersById[sessionId].admin = true;
 						ws.send(JSON.stringify({
 							id: 'writeId',
 							userId: sessionId,
+							room: message.room,
+							settings: message.settings,
+							admin: true
 						}));
 					}
 				} else {
@@ -412,7 +420,8 @@ function notifyAllUsers(sessionId, room) {
 		if (v.id !== sessionId)
 			v.sendMessage({
 				id: 'newUser',
-				userId: sessionId
+				userId: sessionId,
+				settings: userList.usersById[sessionId].settings
 			})
 	});
 }
@@ -423,6 +432,15 @@ function getUsersList(room, activeUserId) {
 	var usersIds = [];
 	peers.forEach(v => {
 		if (v.id !== activeUserId) usersIds.push(v.id);
+	});
+	return usersIds;
+}
+
+function getUsersSettingsList(room, activeUserId) {
+	var peers = userList.getUsersByRoom(room);
+	var usersIds = {};
+	peers.forEach(v => {
+		if (v.id !== activeUserId) usersIds[v.id] = v.settings;
 	});
 	return usersIds;
 }
@@ -458,7 +476,7 @@ UserRegistry.prototype.getUsersByRoom = function (room) {
 	return usersInRoomList;
 }
 
-function UserSession(id, name, ws, room) {
+function UserSession(id, name, ws, room, settings) {
 	this.id = id;
 	this.name = name;
 	this.ws = ws;
@@ -468,6 +486,7 @@ function UserSession(id, name, ws, room) {
 	this.pipeline = null;
 	this.viewers = {};
 	this.room = room;
+	this.settings = settings;
 }
 
 UserSession.prototype.sendMessage = function (message) {
