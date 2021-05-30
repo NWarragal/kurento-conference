@@ -5,7 +5,8 @@ import {
     ADD_VIDEOBLOCK,
     REMOVE_VIDEOBLOCK,
     SET_BASIC_VIDEOBLOCK,
-    CHANGE_VIDEOBLOCK
+    CHANGE_VIDEOBLOCK,
+    CLEAR_VIDEOBLOCKS
 } from "./conferenceActionsTypes";
 
 const initialState = {
@@ -55,12 +56,17 @@ const ConferenceReducer = (state = initialState, { type, payload }) => {
             let object = state.videoBlocks;
             let index;
             for (let i = 0; i < object.length; i++) {
-                if (object[i].userId === payload) index = i;
+                if (object[i].userId === payload.number) index = i;
+                console.log(index);
+                console.log(i);
+                console.log(payload.number);
+                console.log(object[i].userId);
             }
             let obj5 = {
                 ...state,
                 videoBlocks: [
-                    ...state.videoBlocks.splice(index, 1)
+                    ...state.videoBlocks.slice(0, index),
+                    ...state.videoBlocks.slice(index + 1)
                 ]
             }
             return obj5;
@@ -87,6 +93,12 @@ const ConferenceReducer = (state = initialState, { type, payload }) => {
                 videoBlocks: [videoarray2.number]
             }
             return obj6;
+        case CLEAR_VIDEOBLOCKS:
+            let obj8 = {
+                ...state,
+                videoBlocks: []
+            }
+            return obj8;
         default:
             return state;
     }

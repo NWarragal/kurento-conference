@@ -14,7 +14,6 @@ var actualSubscriber;
 var video1;
 var onError;
 var userId;
-var notify = false;
 var startedViewers = false;
 let videoconnection = true;
 let localVideoStream;
@@ -52,8 +51,13 @@ ws.onmessage = function (message) {
 			viewerResponse(parsedMessage);
 			break;
 		case 'stopCommunication':
+			console.log(parsedMessage.userId);
 			store.dispatch(Conference.removeVideoBlock(parsedMessage.userId));
 			dispose(parsedMessage.userId);
+			break;
+		case 'closeConference':
+			store.dispatch(Conference.clearVideoBlocks());
+			stop();
 			break;
 		case 'iceCandidate':
 			switch (parsedMessage.connectionTypeVideoStream) {
@@ -139,7 +143,7 @@ function presenterResponse(message) {
 		dispose();
 	} else {
 		console.log(message.activeUserSettingsList);
-		for (let i in message.activeUserSettingsList){
+		for (let i in message.activeUserSettingsList) {
 			store.dispatch(Conference.addVideoBlock({
 				nickname: message.activeUserSettingsList[i].nickname,
 				userId: i,
@@ -260,11 +264,12 @@ function dispose(userId) {
 			activeUsersIndex = 0;
 			activeUsesList = [];
 			isRegistered = false;
-			// notify = false;
 		}
 	} else {
-		ActiveSubscribing[userId].dispose();
-		delete ActiveSubscribing[userId];
+		if (ActiveSubscribing[userId]) {
+			ActiveSubscribing[userId].dispose();
+			delete ActiveSubscribing[userId];
+		}
 	}
 }
 
@@ -338,4 +343,8 @@ export function createRoom(room, settings) {
 				settings
 			});
 	}
+}
+
+export function disconnect() {
+
 }

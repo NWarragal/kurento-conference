@@ -374,8 +374,16 @@ function stop(sessionId) {
 			}
 		}
 		userList.usersById[sessionId] && userList.usersById[sessionId].pipeline && userList.usersById[sessionId].pipeline.release();
+		if (userList.usersById[sessionId] && userList.usersById[sessionId].admin) {
+			notifyAllUsersEndConference(sessionId, userList.usersById[sessionId].room);
+			let object = activeRooms;
+            let index;
+            for (let i = 0; i < object.length; i++) {
+                if (object[i].userId === userList.usersById[sessionId].room) index = i;
+            }
+			activeRooms.splice(index, 1);
+		}
 		userList.removeById(sessionId);
-		// notify oher users! --upper look
 
 	} else if (userList.usersById[sessionId] && userList.usersById[sessionId].viewers[sessionId]) {
 		userList.usersById[sessionId].viewers[sessionId].webRtcEndpoint.release();
@@ -426,6 +434,15 @@ function notifyAllUsers(sessionId, room) {
 	});
 }
 
+function notifyAllUsersEndConference(sessionId, room) {
+	let list = userList.getUsersByRoom(room);
+	list.forEach(v => {
+		if (v.id !== sessionId)
+			v.sendMessage({
+				id: 'closeConference'
+			})
+	});
+}
 
 function getUsersList(room, activeUserId) {
 	var peers = userList.getUsersByRoom(room);
