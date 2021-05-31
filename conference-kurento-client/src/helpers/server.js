@@ -123,11 +123,9 @@ ws.onmessage = function (message) {
 			chatconnection = parsedMessage.settings.chatActive;
 			audioconnection = parsedMessage.settings.audioActive;
 			videoconnection = parsedMessage.settings.videoActive;
-			console.log('success');
 			presenter();
 			break;
 		case 'errorRegister':
-			console.log(parsedMessage.status);
 			store.dispatch(ErrorPage.setError('Could not register in conference! Maybe this id is invalid'));
 			store.dispatch(ErrorPage.setReloadTOError(true));
 			isRegistered = false;
@@ -142,7 +140,6 @@ ws.onmessage = function (message) {
 			store.dispatch(Messages.setUnread(true));
 			break;
 		case 'settingsUpdated':
-			console.log(parsedMessage.settings);
 			let status = store.getState().conferenceInfo.videoBlocks;
 			let exactStatus;
 			status.forEach(v => {
@@ -187,7 +184,6 @@ function presenterResponse(message) {
 		console.warn('Call not accepted for the following reason: ' + errorMsg);
 		dispose();
 	} else {
-		console.log(message.activeUserSettingsList);
 		for (let i in message.activeUserSettingsList) {
 			store.dispatch(Conference.addVideoBlock({
 				nickname: message.activeUserSettingsList[i].nickname,

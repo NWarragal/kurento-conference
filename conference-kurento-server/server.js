@@ -180,7 +180,7 @@ wss.on('connection', function (ws) {
 				break;
 
 			case 'adminActivities':
-				userList.usersById[message.userId].send({
+				userList.usersById[message.userId].sendMessage({
 					id: 'adminRequest',
 					statusCode: message.statusCode
 				});

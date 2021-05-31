@@ -57,25 +57,25 @@ const SimpleVideoBlock = ({
                                 image={VideoImage}
                                 enabled={videoEnabled}
                                 admin={admin}
-                                onClick={_ => admin && adminActivities('video')}
+                                onClick={_ => admin && adminActivities('video', id)}
                             ></SmallPointButton>
                             <SmallPointButton
                                 image={AudioImage}
                                 enabled={soundEnabled}
                                 admin={admin}
-                                onClick={_ => admin && adminActivities('audio')}
+                                onClick={_ => admin && adminActivities('audio', id)}
                             ></SmallPointButton>
                             <SmallPointButton
                                 image={TextImage}
                                 enabled={textEnabled}
                                 admin={admin}
-                                onClick={_ => admin && adminActivities('text')}
+                                onClick={_ => admin && adminActivities('text', id)}
                             ></SmallPointButton>
                             {admin && <SmallPointButton
                                 image={DeleteImage}
                                 width={15}
                                 admin={admin}
-                                onClick={_ => admin && adminActivities('disconnect')}
+                                onClick={_ => admin && adminActivities('disconnect', id)}
                             ></SmallPointButton>}</> : null}
                 </BottomRightBlock>
             </BottomBlock>
