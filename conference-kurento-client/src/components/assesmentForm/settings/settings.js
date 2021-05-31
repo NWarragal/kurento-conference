@@ -14,7 +14,7 @@ import ButtonCheckbox from '../../button-checkbox/button-checkbox';
 import TextInput from '../../TextInput/textinput';
 import LocStorageClass from '../../../helpers/localStorageParser';
 
-const SettingsModal = ({ onClose, isMainpage = true }) => {
+const SettingsModal = ({ onClose }) => {
     const storage = new LocStorageClass();
     let page = useSelector(state => state.footer.currentPage);
 
@@ -66,7 +66,6 @@ const SettingsModal = ({ onClose, isMainpage = true }) => {
                         disabled={page !== 'home'}
                         value={settingsState.nickname}
                         onChange={v => setSettingsState({ ...settingsState, nickname: v.target.value })}
-                        disabled={!isMainpage}
                     ></TextInput>
                 </ContentBlock>
             </Label>
@@ -85,7 +84,6 @@ const SettingsModal = ({ onClose, isMainpage = true }) => {
                         onChange={v => {
                             setSettingsState({ ...settingsState, messageLimit: v.target.value })
                         }}
-                        disabled={!isMainpage}
                     ></TextInput>
                 </ContentBlock>
             </Label>
