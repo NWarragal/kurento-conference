@@ -171,7 +171,7 @@ wss.on('connection', function (ws) {
 				break;
 
 			case 'sendMessage':
-				resendMessageToAllActive(userList.usersById[sessionId].room, message.value, message.time);
+				resendMessageToAllActive(userList.usersById[sessionId].room, message.value, message.time, sessionId);
 				break;
 
 			case 'updateSettings':
@@ -185,7 +185,8 @@ wss.on('connection', function (ws) {
 					statusCode: message.statusCode
 				});
 				break;
-			default:
+			
+				default:
 				ws.send(JSON.stringify({
 					id: 'error',
 					message: 'Invalid message ' + message
@@ -437,7 +438,7 @@ function onIceCandidate(sessionId, _candidate, targetId) {
 	}
 }
 
-function resendMessageToAllActive(room, value, time) {
+function resendMessageToAllActive(room, value, time, userId) {
 	let list = userList.getUsersByRoom(room);
 	list.forEach(v => {
 		if (v.settings.chatActive)
@@ -445,7 +446,7 @@ function resendMessageToAllActive(room, value, time) {
 				id: 'receiveMessage',
 				value,
 				time,
-				nickname: v.name
+				nickname: userList.usersById[userId].name
 			})
 	});
 }
