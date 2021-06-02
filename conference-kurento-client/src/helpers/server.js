@@ -16,7 +16,7 @@ var startedViewers = false;
 let videoconnection = true;
 let audioconnection = true;
 let chatconnection = true;
-let localVideoStream;
+let localStream;
 let userId;
 let isError = false;
 let isConnected = false;
@@ -216,10 +216,10 @@ function viewerResponse(message) {
 
 export function presenter() {
 	if (!webRtcPeer) {
-		setLocalVideoStreams(0);
+		setLocalStreams(0);
 
 		let options = {
-			videoStream: localVideoStream,
+			videoStream: localStream,
 			onicecandidate: onIceCandidate
 		}
 
@@ -318,7 +318,7 @@ export function sendMessage(message) {
 	ws.send(jsonMessage);
 }
 
-function setLocalVideoStreams(location) {
+function setLocalStreams(location) {
 	navigator.mediaDevices.getUserMedia({
 		video: true
 	})
@@ -326,7 +326,7 @@ function setLocalVideoStreams(location) {
 			let id = '#' + store.getState().conferenceInfo.videoBlocks[location].videoTag;
 			let video1 = document.querySelector(id);
 			video1.srcObject = stream;
-			localVideoStream = stream;
+			localStream = stream;
 		})
 		.catch(function (err) {
 			console.log(err);
@@ -335,12 +335,12 @@ function setLocalVideoStreams(location) {
 
 export function pause() {
 	if (videoconnection) {
-		localVideoStream.getTracks().forEach((v) => {
+		localStream.getTracks().forEach((v) => {
 			v.enabled = false;
 		})
 		videoconnection = false;
 	} else {
-		localVideoStream.getTracks().forEach((v) => {
+		localStream.getTracks().forEach((v) => {
 			v.enabled = true;
 		})
 		videoconnection = true;
@@ -349,7 +349,7 @@ export function pause() {
 
 export function closePeer() {
 	if (videoconnection) {
-		localVideoStream.getTracks().forEach((v) => {
+		localStream.getTracks().forEach((v) => {
 			v.stop();
 		})
 		videoconnection = false;
