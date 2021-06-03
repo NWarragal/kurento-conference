@@ -141,8 +141,8 @@ wss.on('connection', function (ws) {
 
 			case 'createRoom':
 				if (!checkIsAvailible(message.room)) {
-					activeRooms.push(message.room);
 					if (message.settings.nickname) {
+						activeRooms.push(message.room);
 						if (!userList.getById(sessionId))
 							userList.register(new UserSession(sessionId, message.settings.nickname, ws, message.room, message.settings));
 						userList.usersById[sessionId].admin = true;
