@@ -5,7 +5,7 @@ var minimist = require('minimist');
 var ws = require('ws');
 var kurento = require('kurento-client');
 var fs = require('fs');
-var https = require('https');
+var https = require('http');
 
 var argv = minimist(process.argv.slice(2), {
 	default: {
@@ -13,12 +13,6 @@ var argv = minimist(process.argv.slice(2), {
 		ws_uri: 'ws://localhost:8888/kurento'
 	}
 });
-
-var options =
-{
-	key: fs.readFileSync('keys/server.key'),
-	cert: fs.readFileSync('keys/server.crt')
-};
 
 var app = express();
 
@@ -32,14 +26,21 @@ var activeRooms = [];
 var asUrl = url.parse(argv.as_uri);
 var port = asUrl.port;
 
-var server = https.createServer(options, app).listen(port, function () {
+var server = https.createServer(app).listen(port, function () {
+	var host = server.address().address;
+    var port = server.address().port;
+    console.log('running at http://' + host + ':' + port)
+	console.log('------------------------------------');
 	console.log('Kurento Control server is started');
 	console.log('Server is launched on adress: ' + url.format(asUrl));
 });
 
+server.on('request', (req, res) => {
+	res.end('server responce');
+})
+
 var wss = new ws.Server({
-	server: server,
-	path: '/server'
+	server: server
 });
 
 app.use(express.static(path.join(__dirname, 'static')));

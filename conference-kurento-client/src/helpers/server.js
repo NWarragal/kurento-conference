@@ -4,7 +4,7 @@ import * as Conference from '../store/modules/conferenceInfo/conferenceActions';
 import * as Messages from '../store/modules/messagesInfo/messagesActions';
 import store from '../store/store';
 
-var ws = new WebSocket('wss://localhost:8443/server');
+var ws = new WebSocket('ws://8.tcp.ngrok.io:19328/');
 var webRtcPeer;
 var ActiveSubscribing = {};
 var VideoMs = {};
@@ -224,7 +224,7 @@ export function presenter() {
 		}
 
 		webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerSendonly(options, function (error) {
-			if (error) return onError(error);
+			if (error) return false;
 
 			webRtcPeer.generateOffer(onOfferPresenter);
 		});
@@ -302,6 +302,7 @@ function dispose(userId) {
 			VideoMs = {};
 			activeUsersIndex = 0;
 			activeUsesList = [];
+			store.dispatch(Messages.ClearChat());
 			isRegistered = false;
 		}
 	} else {
